@@ -1,0 +1,11 @@
+int M=10;
+int N=100;
+int T0=300;
+int T1=400;
+double length=1.0;
+double time_const =10.0;
+double tau=1.0*time_const/N;
+double h=length/M;
+double la=1.0;//Коэффициент Теплопроводности
+double ro=100.0; //Плотность
+double c=1.0;//Теплоемкость
