@@ -12,3 +12,4 @@ extern double ro_l;			//Плотность жидкости			(Кг/м3)
 extern double ro_s; 			//Плотность скелета				(Кг/м3)
 extern double c;				//Теплоемкость					(Дж/К)
 extern double gravity;			//Постоянная свободного падения	(м/с2)
+extern double K_abs;
