@@ -7,13 +7,13 @@
 //-----------------------------Глобальные переменные-------------------------
 int M=100;						//Количество шагов по растоянию
 int N=2000;					//Количество шагов по времени
-int T0=300;						//Температура среды и верхней стенки
-int T1=400;						//Температура нижней стенки		(К)
+double T0=300.0;						//Температура среды и верхней стенки
+double T1=400.0;						//Температура нижней стенки		(К)
 double length=10.0;  			//Длина области в метрах		(м)
 double time_const =2e-5;		//Время эксперимента 			(с)
 double tau=1.0*time_const/N;	//Величина шага по времени		(с) 
 double h=length/(M);				//Величина шага по расстоянию	(м)
-double etta=1e-3; 				//Коэффициент Вязости			(Па*с)
+double eta=1e-3; 				//Коэффициент Вязости			(Па*с)
 double la=0.6;					//Коэффициент Теплопроводности	(Дж/(м*с*К))
 double ro_l=1000.0; 			//Плотность жидкости			(Кг/м3)
 double ro_s=1400.0; 			//Плотность скелета				(Кг/м3)
@@ -21,11 +21,11 @@ double c=1.0;					//Теплоемкость					(Дж/К)
 double gravity=9.8;				//Постоянная свободного падения	(м/с2)
 double K_abs=1.0;				//Абсолютная проницаемость
 //---------------------------------------------------------------------------------------------------
-void analit(const double t, double* tetta);
-void K_permeability(double* tetta, double* K_perm);
+void analit(const double t, double* theta);
+void K_permeability(double* theta, double* K_perm);
 void termal(double* T, double* Tnew, double* q);
-void W_filtration(double* tetta, double* K_perm, double* W_fil );
-void saturation(double* tetta, double* W_fil, double* tetta_new);
+void W_filtration(double* theta, double* K_perm, double* W_fil );
+void saturation(double* theta, double* W_fil, double* theta_new);
 
 
 main()
@@ -39,41 +39,41 @@ main()
 	double* switcher;					//Меняет местами старый слой c новым
 	std::fstream fs2;
 	double* W_fil=(double*)calloc(M+1, sizeof(double)); 		// Вектор Фильтрации
-	double* tetta_new=(double*)calloc(M+1, sizeof(double));		//Отношение двух нассыщеностей на новом слое
-	double* tetta=(double*)calloc(M+1, sizeof(double));			//Отношение двух нассыщеностей
-	double* tetta_analytic=(double*)calloc(M+1, sizeof(double));//Отношение насыщенностей по аналитическому решению
+	double* theta_new=(double*)calloc(M+1, sizeof(double));		//Отношение двух нассыщеностей на новом слое
+	double* theta=(double*)calloc(M+1, sizeof(double));			//Отношение двух нассыщеностей
+	double* theta_analytic=(double*)calloc(M+1, sizeof(double));//Отношение насыщенностей по аналитическому решению
 	double* K_perm=(double*)calloc(M+1, sizeof(double));			//Проницаемость
 //----------------------------------------Начальные и граничные условия---------------------------
 	W_fil[0]=0;
 	//W_fil[M-2]=0;
 	for (m=1; m<M; m++)
 	{
-		tetta[m]=1.0;
+		theta[m]=1.0;
 	}
 //----------------------------------------Расчет----------------------------------------------------
 
 	for (n=0;n<N;n++)
 	{
-		K_permeability(tetta, K_perm);			//Вычисление проницаемости
-		W_filtration(tetta, K_perm, W_fil );	//Вычисление скорости филтрации 
-		saturation(tetta, W_fil,tetta_new);		//Вычисление насыщенности на новом слое
+		K_permeability(theta, K_perm);			//Вычисление проницаемости
+		W_filtration(theta, K_perm, W_fil );	//Вычисление скорости филтрации 
+		saturation(theta, W_fil,theta_new);		//Вычисление насыщенности на новом слое
 
-		analit((n+1)*tau, tetta_analytic); 		//Аналитическое решение
+		analit((n+1)*tau, theta_analytic); 		//Аналитическое решение
 //-------------------------------Вывод-------------------------------------------------------
 		sprintf(buf,"./out/output%06d.csv",n);
 		fs2.open(buf, std::fstream::out);
 		fs2 << "x,theta,analytic" << std::endl;
 		for (m=1;m<M;m++)
 		{
-			fs2 << m * h <<","<<(tetta_new[m]/(1+tetta_new[m]))<<","<<(tetta_analytic[m]/(1+tetta_analytic[m]));
-			//fs2 << m * h <<","<<tetta_new[main];						//вывод отношения насыщенностей
+			fs2 << m * h <<","<<(theta_new[m]/(1+theta_new[m]))<<","<<(theta_analytic[m]/(1+theta_analytic[m]));
+			//fs2 << m * h <<","<<theta_new[main];						//вывод отношения насыщенностей
 			fs2 << std::endl;
 		}
 		fs2.close();
 //----------------------------------Конец Вывода-----------------------------------------------
-		switcher=tetta;
-		tetta=tetta_new;
-		tetta_new=switcher;
+		switcher=theta;
+		theta=theta_new;
+		theta_new=switcher;
 	}
 
 	
