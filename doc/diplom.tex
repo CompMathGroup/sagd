@@ -1,0 +1,31 @@
+\documentclass[12pt]{article}
+%\usepackage[cp1251]{inputenc}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage[english, russian]{babel}
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\title{Численное моделирование парогравитационной технологии добычи высоковязких нефтей}
+\author{Фирсов Егор}
+\begin{document}
+\maketitle
+
+\section*{Обозначения}
+
+\section*{Уравнения}
+Уравнение непрерывности
+\begin{equation}
+\pd{\rho_l\theta_l}{t} + \pd{V_l\theta_l\rho_l}{z} =0
+\end{equation}
+\begin{equation}
+\pd{\rho_s\theta_s}{t} + \pd{V_s\theta_s\rho_l}{z} =0
+\end{equation}
+
+Уравнение сохранения энергии
+\begin{equation}
+\pd{E}{t} + \pd{Q}{z} =0 
+\end{equation}
+\begin{equation}
+E=\theta_l\rho_l e_l + \theta_s\rho_s e_s 
+\end{equation}
+\end{document}
