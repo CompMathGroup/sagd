@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string>
 //-----------------------------Глобальные переменные-------------------------
-int M=100;						//Количество шагов по растоянию
+int M=500;						//Количество шагов по растоянию
 int N=2000;					//Количество шагов по времени
 double T0=300.0;						//Температура среды и верхней стенки
 double T1=400.0;						//Температура нижней стенки		(К)
@@ -20,6 +20,7 @@ double ro_s=1400.0; 			//Плотность скелета				(Кг/м3)
 double c=1.0;					//Теплоемкость					(Дж/К)
 double gravity=9.8;				//Постоянная свободного падения	(м/с2)
 double K_abs=1.0;				//Абсолютная проницаемость
+double theta0=2.0;
 //---------------------------------------------------------------------------------------------------
 void analit(const double t, double* theta);
 void K_permeability(double* theta, double* K_perm);
@@ -44,11 +45,13 @@ main()
 	double* theta_analytic=(double*)calloc(M+1, sizeof(double));//Отношение насыщенностей по аналитическому решению
 	double* K_perm=(double*)calloc(M+1, sizeof(double));			//Проницаемость
 //----------------------------------------Начальные и граничные условия---------------------------
-	W_fil[0]=0;
+	//W_fil[0]=0;
 	//W_fil[M-2]=0;
+	theta[0]=theta0;
+	theta_new[0]=theta0;
 	for (m=1; m<M; m++)
 	{
-		theta[m]=1.0;
+		theta[m]=0.0;
 	}
 //----------------------------------------Расчет----------------------------------------------------
 
@@ -63,7 +66,7 @@ main()
 		sprintf(buf,"./out/output%06d.csv",n);
 		fs2.open(buf, std::fstream::out);
 		fs2 << "x,theta,analytic" << std::endl;
-		for (m=1;m<M;m++)
+		for (m=0;m<M;m++)
 		{
 			fs2 << m * h <<","<<(theta_new[m]/(1+theta_new[m]))<<","<<(theta_analytic[m]/(1+theta_analytic[m]));
 			//fs2 << m * h <<","<<theta_new[main];						//вывод отношения насыщенностей
