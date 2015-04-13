@@ -9,23 +9,226 @@
 \author{Фирсов Егор}
 \begin{document}
 \maketitle
-
+\newpage
 \section*{Обозначения}
 
 \section*{Уравнения}
-Уравнение непрерывности
+
+Уравнение непрерывности. Считаем, что источников нет
 \begin{equation}
 \pd{\rho_l\theta_l}{t} + \pd{V_l\theta_l\rho_l}{z} =0
+\label{eq:contin_l}
 \end{equation}
 \begin{equation}
 \pd{\rho_s\theta_s}{t} + \pd{V_s\theta_s\rho_l}{z} =0
+\label{eq:contin_s}
 \end{equation}
 
-Уравнение сохранения энергии
+Уравнение сохранения энергии. Считаем, что источников нет
 \begin{equation}
-\pd{E}{t} + \pd{Q}{z} =0 
+\begin{aligned}
+&\pd{E}{t} + \pd{Q}{z} =0 \\
+&E=\theta_l\rho_l e_l + \theta_s\rho_s e_s \\
+&Q=\theta_l\rho_l h_l + \theta_s\rho_s h_s - \lambda \pd{T}{z}\\
+\label{eq:conserv}
+\end{aligned}
 \end{equation}
+
+%\begin{equation}
+%\pd{\theta_l\rho_l e_l + \theta_s\rho_s e_s }{t} + \pd{ \theta_l\rho_l h_l + \theta_s\rho_s h_s - \lambda \pd{T}{z} }{z} = 0
+%\end{equation}
+Считаем, что скелет несжимаемый
+
 \begin{equation}
-E=\theta_l\rho_l e_l + \theta_s\rho_s e_s 
+\begin{aligned}
+%\rho_l = const \\ 
+\rho_s = const \\
+\label{rho_const}
+\end{aligned}
 \end{equation}
+
+Тогда из уравнения \eqref{eq:contin_s}, с учетом несжимаемости флюида получаем
+\begin{equation}
+\pd{\theta_s}{t} = - \pd{\theta_s V_s}{z}
+\label{fluid}
+\end{equation}
+
+Перейдем к новой переменной $dx$
+\begin{equation}
+dx = \theta_s dz - \theta_s V_s dt
+\label{dx_dz}
+\end{equation}
+
+Отсюда, для как-либо функции f 
+\begin{equation}
+\begin{aligned}
+&\left(\pd{f}{t}\right)_z = \pd{(f , z)}{(t , z)}\\
+&\partial(f , z) = \frac{1}{\theta_s}\partial(f , x) + V_s \partial(f , t)\\
+&\pd{(f , z)}{(t , z)} = \frac{1}{\theta_s}\pd{(f , x)}{(t , z)} + V_s\pd{(f , t)}{(t , z)}\\
+\end{aligned}
+\label{help1}
+\end{equation}
+
+Для $ f = t $ 
+$$
+\partial(t , z) = \frac{1}{\theta_s} \partial(t , x) + V_s \partial(t , t) = \frac{1}{\theta_s} \partial(t , x)
+$$
+
+Из \eqref{help1}, используя предыдущее равенство получаем
+$$
+\left(\pd{f}{t}\right)_z = \pd{(f , x)}{(t , x)} + V_s \theta_s\pd{(f ,t)}{(t , x)}
+$$
+
+Далее получаем
+\begin{equation}
+\begin{aligned}
+&\left(\pd{f}{t}\right)_z = \left(\pd{f}{t}\right)_x - V_s\theta_s\left(\pd{f}{x}\right)_t\\
+&\left(\pd{f}{z}\right)_t = \theta_s\left(\pd{f}{x}\right)_t\\
+\end{aligned}
+\label{z_x}
+\end{equation}
+
+Применим полученные равенства к уравнению непрерывности для скелета \eqref{fluid}. Переходим к новой перемнной.
+$$
+\pd{\theta_s}{t} - V_s\theta_s\pd{\theta_s}{x} + \theta_s\pd{V_s\theta_s}{x} =0
+$$
+
+Расписывая третий член, и сокращая подобные члены, получаем
+$$
+\pd{V_s}{x} + \frac{1}{\theta_s^2}\pd{\theta_s}{t}
+$$
+
+Отсюда
+\begin{equation}
+\pd{V_s}{x} = \pd{}{t}\frac{1}{\theta_s}
+\label{V_s}
+\end{equation}
+
+Теперь используя полученные равенства перепишем уравнение непрерывности для флюида в новой переменной. Для начала перепишем его добавив и вычтя $V_s\pd{\rho_l\theta_l}{z} $
+$$
+\pd{\rho_l\theta_l}{t} + V_s\pd{\rho_l\theta_l}{z} - V_s\pd{\rho_l\theta_l}{z} + \pd{V_l\theta_l\rho_l}{z} =0
+$$
+
+Сгруппировав члены и используя \eqref{z_x}, получаем:
+$$
+\left(\pd{\rho_l\theta_l}{t}\right)_x - V_s\theta_s \left(\pd{\rho_l\theta_l}{x}\right)_t + \theta_s\left(\pd{\rho_l\theta_l(V_l - V_s)}{x}\right)_t + \rho_l\theta_l\theta_s\left(\pd{V_s}{x}\right)_t + V_s\theta_s \left(\pd{\rho_l\theta_l}{x}\right)_t = 0
+$$
+
+Перепишем это, используя \eqref{V_s} и поделив все на $\theta_s$
+$$
+\frac{1}{\theta_s}\pd{\rho_l\theta_l}{t} + \pd{\rho_l\theta_l(V_l-V_s)}{x} + \rho_l\theta_l\pd{}{t}\frac{1}{\theta_s} = 0
+$$
+
+Сгруппировав первый и последний члены выпишем
+\begin{equation}
+\pd{}{t}\frac{\rho_l\theta_l}{\theta_s} + \pd{}{x}\rho_l\theta_l(V_l - V_s) = 0
+\label{filtr_compr}
+\end{equation}
+
+Обозначим 
+\begin{equation}
+W = \theta_l (V_l - V_s )
+\label{W_filtr}
+\end{equation}
+
+С учетом этого и в предположении, что флюид не сжимаемый, получаем
+\begin{equation}
+\pd{}{t}\frac{\theta_l}{\theta_s} + \pd{}{x}W = 0
+\label{filtr_compr}
+\end{equation}
+
+Перепишем уравнение сохранения энергии в новой переменной. Используем \eqref{eq:conserv} и \eqref{z_x}
+$$
+\pd{E}{t} - V_s\theta_s\pd{E}{x} + \theta_s\pd{Q}{x}
+$$
+
+Отсюда
+$$
+\frac{1}{\theta_s}\pd{E}{t} + \pd{}{x}(Q-V_s E) + E\pd{V_s}{x} = 0
+$$
+
+Используем \eqref{V_s} и группируя члены получаем
+\begin{equation}
+\pd{}{t}\frac{E}{\theta_s} + \pd{}{x}(Q - V_s E) = 0
+\end{equation}
+
+$$
+Q-V_s E = \theta_l\rho_l e_l V_l + \theta_s\rho_s e_s V_s + \theta_l P + \theta_s P -V_s(\rho_l\theta_l e_l +\rho_s\theta_s e_s) - \lambda\theta_s\pd{T}{x}
+$$
+
+Сокращаем подобные члены, учитываем $W = \theta_l (V_l - V_s )$, получаем уравнение сохранения энергии в новых переменных
+\begin{equation}
+\pd{}{t}\frac{E}{\theta_s} + \pd{}{x}(\rho_l e_l W - \lambda\theta_s\pd{T}{x}) = 0
+\label{eq:conserv_new}
+\end{equation}
+
+Выпишем закон Дарси
+\begin{equation}
+W= -\frac{k}{\eta_l}\left(\pd{p}{z} + (\rho_l-\rho_s)g \right)
+\label{Darsi}
+\end{equation}
+\newpage
+\section*{Подзадача 1 Фильтрация}
+
+Решаем задачу фильтрации в следующих предположениях:
+\begin{itemize}
+\item Скелет несжимаемый $\rho_s = const $
+\item Флюид несжимаемый $\rho_l = const $
+\item Проницаемость имеет квадратичную зависимость от насыщенности флюида
+\begin{equation}
+k=\theta_l^2
+\label{perm}
+\end{equation}
+\end{itemize}
+Уравнение непрерывности приобретает вид
+$$
+\pd{}{t}\frac{\theta_l}{\theta_s} + \pd{}{x}W = 0
+$$
+Закон Дарси:
+$$
+W= -\frac{k}{\eta_l}(\rho_l-\rho_s)g
+$$
+
+Выпишем разностную схему
+\begin{equation}
+\left(\frac{\theta_l}{\theta_s}\right)_i^{n+1} = \left(\frac{\theta_l}{\theta_s}\right)_i^n - \tau\frac{W_{i+1/2} - W_{i-1/2}}{h}
+\label{filtr_razn}
+\end{equation}
+
+\begin{equation}
+W_{i+1/2} = \frac{K k(\theta_i)}{\eta_l}(\rho_s-\rho_l)g
+\label{Darsi_razn}
+\end{equation}
+
+\newpage
+\section*{Подзадача 2 Теплопроводность}
+Решаем задачу теплопроводности в следующих предположениях:
+\begin{itemize}
+\item Одна среда
+\item Среда несжимаемая $\rho = const$
+\item Источников энергии нет
+\end{itemize}
+
+Тогда уравнение сохранения энергии примет следующий вид
+\begin{equation}
+\rho c \pd{T}{t} = - \pd{q}{z}
+\label{termal_1}
+\end{equation}
+
+\begin{equation}
+q = - \lambda\pd{T}{z}
+\label{termal_2}
+\end{equation}
+
+Запишем разностную схему
+\begin{equation}
+q_{m+1/2} = - \lambda\frac{T_{m+1} - T_m}{h}
+\label{termal_razn_1}
+\end{equation}
+
+\begin{equation}
+T_m^{m+1} = - \tau\frac{q_{m+1/2} - q_{m-1/2}}{h\rho c} + \rho c T_m^n
+\label{termal_razn_2}
+\end{equation}
+
 \end{document}

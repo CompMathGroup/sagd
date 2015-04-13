@@ -13,4 +13,5 @@ extern double ro_s; 			//Плотность скелета				(Кг/м3)
 extern double c;				//Теплоемкость					(Дж/К)
 extern double gravity;			//Постоянная свободного падения	(м/с2)
 extern double K_abs;			//Абсолютная проницаемость
-extern double theta0;
+extern double theta0;			//Насыщенность на границе
+extern double theta_crit;		//Критическое значение насыщенности (относительной)

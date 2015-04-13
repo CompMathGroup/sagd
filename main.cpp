@@ -6,13 +6,13 @@
 #include <string>
 //-----------------------------Глобальные переменные-------------------------
 int M=500;						//Количество шагов по растоянию
-int N=2000;					//Количество шагов по времени
-double T0=300.0;						//Температура среды и верхней стенки
-double T1=400.0;						//Температура нижней стенки		(К)
+int N=2000;						//Количество шагов по времени
+double T0=300.0;				//Температура среды и верхней стенки
+double T1=400.0;				//Температура нижней стенки		(К)
 double length=10.0;  			//Длина области в метрах		(м)
 double time_const =2e-5;		//Время эксперимента 			(с)
 double tau=1.0*time_const/N;	//Величина шага по времени		(с) 
-double h=length/(M);				//Величина шага по расстоянию	(м)
+double h=length/(M);			//Величина шага по расстоянию	(м)
 double eta=1e-3; 				//Коэффициент Вязости			(Па*с)
 double la=0.6;					//Коэффициент Теплопроводности	(Дж/(м*с*К))
 double ro_l=1000.0; 			//Плотность жидкости			(Кг/м3)
@@ -20,13 +20,15 @@ double ro_s=1400.0; 			//Плотность скелета				(Кг/м3)
 double c=1.0;					//Теплоемкость					(Дж/К)
 double gravity=9.8;				//Постоянная свободного падения	(м/с2)
 double K_abs=1.0;				//Абсолютная проницаемость
-double theta0=2.0;
+double theta0=2.0;				//Насыщенность на границе
+double theta_crit=1./19;				//Критическое значение насыщенности (относительной)
 //---------------------------------------------------------------------------------------------------
 void analit(const double t, double* theta);
 void K_permeability(double* theta, double* K_perm);
 void termal(double* T, double* Tnew, double* q);
 void W_filtration(double* theta, double* K_perm, double* W_fil );
 void saturation(double* theta, double* W_fil, double* theta_new);
+void filtr_satur(const double *K_perm, const double *theta, double *theta_new, double *W_fil);
 
 
 main()
@@ -45,30 +47,31 @@ main()
 	double* theta_analytic=(double*)calloc(M+1, sizeof(double));//Отношение насыщенностей по аналитическому решению
 	double* K_perm=(double*)calloc(M+1, sizeof(double));			//Проницаемость
 //----------------------------------------Начальные и граничные условия---------------------------
-	//W_fil[0]=0;
+	W_fil[0]=0;
 	//W_fil[M-2]=0;
-	theta[0]=theta0;
-	theta_new[0]=theta0;
+	//theta[0]=theta0;
+	//theta_new[0]=theta0;
 	for (m=1; m<M; m++)
 	{
-		theta[m]=0.0;
+		theta[m]=1.0;
 	}
 //----------------------------------------Расчет----------------------------------------------------
 
 	for (n=0;n<N;n++)
 	{
 		K_permeability(theta, K_perm);			//Вычисление проницаемости
-		W_filtration(theta, K_perm, W_fil );	//Вычисление скорости филтрации 
-		saturation(theta, W_fil,theta_new);		//Вычисление насыщенности на новом слое
+		filtr_satur(K_perm, theta, theta_new, W_fil);
 
-		analit((n+1)*tau, theta_analytic); 		//Аналитическое решение
+		//W_filtration(theta, K_perm, W_fil );	//Вычисление скорости филтрации 
+		//saturation(theta, W_fil,theta_new);		//Вычисление насыщенности на новом слое
+		//analit((n+1)*tau, theta_analytic); 		//Аналитическое решение
 //-------------------------------Вывод-------------------------------------------------------
 		sprintf(buf,"./out/output%06d.csv",n);
 		fs2.open(buf, std::fstream::out);
-		fs2 << "x,theta,analytic" << std::endl;
+		fs2 << "x, theta" << std::endl;
 		for (m=0;m<M;m++)
 		{
-			fs2 << m * h <<","<<(theta_new[m]/(1+theta_new[m]))<<","<<(theta_analytic[m]/(1+theta_analytic[m]));
+			fs2 << m * h <<","<<(theta_new[m]/(1+theta_new[m]));
 			//fs2 << m * h <<","<<theta_new[main];						//вывод отношения насыщенностей
 			fs2 << std::endl;
 		}
