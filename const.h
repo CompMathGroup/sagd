@@ -4,7 +4,7 @@ extern double T0;					//Температура среды и верхней ст
 extern double T1;					//Температура нижней стенки		(К)
 extern double length;  		//Длина области в метрах		(м)
 extern double time_const;		//Время эксперимента 			(с)
-extern double tau;	//Величина шага по времени		(с) 
+//extern double tau;	//Величина шага по времени		(с) 
 extern double h;				//Величина шага по расстоянию	(м)
 extern double eta; 			//Коэффициент Вязости			(Па*с)
 extern double la;				//Коэффициент Теплопроводности	(Дж/(м*с*К))

@@ -11,7 +11,7 @@ double T0=300.0;				//Температура среды и верхней сте
 double T1=400.0;				//Температура нижней стенки		(К)
 double length=10.0;  			//Длина области в метрах		(м)
 double time_const =2e-5;		//Время эксперимента 			(с)
-double tau=1.0*time_const/N;	//Величина шага по времени		(с) 
+//double tau=1.0*time_const/N;	//Величина шага по времени		(с) 
 double h=length/(M);			//Величина шага по расстоянию	(м)
 double eta=1e-3; 				//Коэффициент Вязости			(Па*с)
 double la=0.6;					//Коэффициент Теплопроводности	(Дж/(м*с*К))
@@ -21,19 +21,21 @@ double c=1.0;					//Теплоемкость					(Дж/К)
 double gravity=9.8;				//Постоянная свободного падения	(м/с2)
 double K_abs=1.0;				//Абсолютная проницаемость
 double theta0=2.0;				//Насыщенность на границе
-double theta_crit=1./19;				//Критическое значение насыщенности (относительной)
+double theta_crit=1./19;		//Критическое значение насыщенности (относительной)
 //---------------------------------------------------------------------------------------------------
 void analit(const double t, double* theta);
 void K_permeability(double* theta, double* K_perm);
-void termal(double* T, double* Tnew, double* q);
-void W_filtration(double* theta, double* K_perm, double* W_fil );
+void termal(double* T, double* Tnew, double* q, double tau);
+void W_filtration(double* theta, double* K_perm, double* W_fil, double tau);
 void saturation(double* theta, double* W_fil, double* theta_new);
-void filtr_satur(const double *K_perm, const double *theta, double *theta_new, double *W_fil);
+void filtr_satur(const double *K_perm, const double *theta, double *theta_new, double *W_fil, double tau, double *a_max);
 
 
 main()
-{	int n;//Шаг по времени
-	int m;//Шаг по расстоянию
+{	int n;				//Шаг по времени
+	int m;				//Шаг по расстоянию
+	double a_max;		//Максимальная скорость фильтрации для вычисления шага по времени
+	double tau, t;
 	std::fstream fs;
 	std::fstream fs1;
 	char buf[128];
@@ -56,22 +58,27 @@ main()
 		theta[m]=1.0;
 	}
 //----------------------------------------Расчет----------------------------------------------------
-
-	for (n=0;n<N;n++)
+	t = 0;
+	tau = 1.*time_const/N;
+	n = 0;
+	while (t < time_const)
+	//for (n=0; n < N; n++)
 	{
 		K_permeability(theta, K_perm);			//Вычисление проницаемости
-		filtr_satur(K_perm, theta, theta_new, W_fil);
+		filtr_satur(K_perm, theta, theta_new, W_fil, tau, &a_max);
 
 		//W_filtration(theta, K_perm, W_fil );	//Вычисление скорости филтрации 
-		//saturation(theta, W_fil,theta_new);		//Вычисление насыщенности на новом слое
+		//saturation(theta, W_fil,theta_new, tau);		//Вычисление насыщенности на новом слое
 		//analit((n+1)*tau, theta_analytic); 		//Аналитическое решение
 //-------------------------------Вывод-------------------------------------------------------
+		fs1 << tau;
+		fs1 <<std::endl;
 		sprintf(buf,"./out/output%06d.csv",n);
 		fs2.open(buf, std::fstream::out);
-		fs2 << "x, theta" << std::endl;
+		fs2 << "x, theta, W_fil" << std::endl;
 		for (m=0;m<M;m++)
 		{
-			fs2 << m * h <<","<<(theta_new[m]/(1+theta_new[m]));
+			fs2 << m * h <<","<<(theta_new[m]/(1+theta_new[m])) <<"," << W_fil[m];
 			//fs2 << m * h <<","<<theta_new[main];						//вывод отношения насыщенностей
 			fs2 << std::endl;
 		}
@@ -80,6 +87,10 @@ main()
 		switcher=theta;
 		theta=theta_new;
 		theta_new=switcher;
+		tau = h / a_max / 2 / ((ro_s - ro_l) * gravity /eta);
+		n++;
+		t+=tau;
+		//printf(" %d , %.8f \n",n, t);
 	}
 
 	
@@ -105,7 +116,7 @@ main()
 //--------------------------------------Расчет-------------------------------------
 	for (n=0;n<N;n++)
 	{
-		termal(T, Tnew, q);
+		termal(T, Tnew, q, tau);
 //----------------------------------Вывод-----------------------------------------------------
 		for (m=0; m<M; m++)
 		{

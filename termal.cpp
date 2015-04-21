@@ -1,6 +1,6 @@
 #include "const.h"
 
-void termal(double* T, double* Tnew, double* q)
+void termal(double* T, double* Tnew, double* q, double tau)
 {	
 	int m;
 	for (m=0; m<M-1; m++)
