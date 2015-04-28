@@ -4,31 +4,39 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string>
+#include <math.h>
 //-----------------------------Глобальные переменные-------------------------
 int M=500;						//Количество шагов по растоянию
 int N=2000;						//Количество шагов по времени
 double T0=300.0;				//Температура среды и верхней стенки
-double T1=400.0;				//Температура нижней стенки		(К)
+double T1=500.0;				//Температура нижней стенки		(К)
 double length=10.0;  			//Длина области в метрах		(м)
-double time_const =2e-5;		//Время эксперимента 			(с)
+double time_const = 1e6;		//Время эксперимента 			(с)
 //double tau=1.0*time_const/N;	//Величина шага по времени		(с) 
 double h=length/(M);			//Величина шага по расстоянию	(м)
-double eta=1e-3; 				//Коэффициент Вязости			(Па*с)
+//double eta=1e-3; 				//Коэффициент Вязости			(Па*с)
 double la=0.6;					//Коэффициент Теплопроводности	(Дж/(м*с*К))
 double ro_l=1000.0; 			//Плотность жидкости			(Кг/м3)
 double ro_s=1400.0; 			//Плотность скелета				(Кг/м3)
-double c=1.0;					//Теплоемкость					(Дж/К)
+double c_l = 1e3;				//Теплоемкость флюида			(Дж/К)
+double c_s = 2e3;				//Теплоемкость скелета
 double gravity=9.8;				//Постоянная свободного падения	(м/с2)
-double K_abs=1.0;				//Абсолютная проницаемость
-double theta0=2.0;				//Насыщенность на границе
-double theta_crit=1./19;		//Критическое значение насыщенности (относительной)
+double K_abs=1e-11;				//Абсолютная проницаемость
+double psi0=2.0;				//Насыщенность на границе
+double psi_crit=1./19;			//Критическое значение насыщенности (относительной)
+double alpha = 0.02;			//Коэффициент в показателе экспоненты для расчета вязкости
+double Tcrit = 400;				//Температура в экспоненте для расчечта вязкоти
 //---------------------------------------------------------------------------------------------------
-void analit(const double t, double* theta);
-void K_permeability(double* theta, double* K_perm);
-void termal(double* T, double* Tnew, double* q, double tau);
-void W_filtration(double* theta, double* K_perm, double* W_fil, double tau);
-void saturation(double* theta, double* W_fil, double* theta_new);
-void filtr_satur(const double *K_perm, const double *theta, double *theta_new, double *W_fil, double tau, double *a_max);
+double theta_s(const double psi);
+double theta_l(const double psi);
+void analit(const double t, double* psi, const double eta);
+void K_permeability(double* psi, double* K_perm);
+void T_cond(double* q, const double* psi, const double* T);
+void termal(const double* T, double* Tnew, const double* q, const double* psi, const double* W_fil, const double* psi_new, const double tau);
+void W_filtration(double* psi, double* K_perm, double* W_fil, double tau);
+void saturation(double* psi, double* W_fil, double* psi_new);
+void filtr_satur(const double *K_perm, const double *psi, double *psi_new, double *W_fil, double tau, double *a_max, const double* eta);
+void viscosity(double * eta, const double* T);
 
 
 main()
@@ -43,54 +51,81 @@ main()
 	fs1.open("lay1.txt", std::fstream::out);
 	double* switcher;					//Меняет местами старый слой c новым
 	std::fstream fs2;
+
+	double tau1, tau2;
+	double* T=(double*)calloc(M, sizeof(double));				//Температура на старом слое 
+	double* Tnew=(double*)calloc(M, sizeof(double)); 			//Температура на новом слое	
+	double* q=(double*)calloc(M, sizeof(double)); 			//Температура на новом слое	
+	double* eta = (double*)calloc(M+1, sizeof(double));			//Вязкость
 	double* W_fil=(double*)calloc(M+1, sizeof(double)); 		// Вектор Фильтрации
-	double* theta_new=(double*)calloc(M+1, sizeof(double));		//Отношение двух нассыщеностей на новом слое
-	double* theta=(double*)calloc(M+1, sizeof(double));			//Отношение двух нассыщеностей
-	double* theta_analytic=(double*)calloc(M+1, sizeof(double));//Отношение насыщенностей по аналитическому решению
+	double* psi_new=(double*)calloc(M+1, sizeof(double));		//Отношение двух нассыщеностей на новом слое
+	double* psi=(double*)calloc(M+1, sizeof(double));			//Отношение двух нассыщеностей
+	double* psi_analytic=(double*)calloc(M+1, sizeof(double));	//Отношение насыщенностей по аналитическому решению
 	double* K_perm=(double*)calloc(M+1, sizeof(double));			//Проницаемость
 //----------------------------------------Начальные и граничные условия---------------------------
 	W_fil[0]=0;
-	//W_fil[M-2]=0;
-	//theta[0]=theta0;
-	//theta_new[0]=theta0;
+	T[0] = T1;
+	Tnew[0] = T1;
+	psi[0] = 1;
+	psi_new[0] = 1;
 	for (m=1; m<M; m++)
 	{
-		theta[m]=1.0;
+		psi[m]=1.0; 
+		T[m] = T0;
+		//eta[m] = 1000.0;
 	}
-//----------------------------------------Расчет----------------------------------------------------
 	t = 0;
-	tau = 1.*time_const/N;
+	tau = 1e-20;
 	n = 0;
+	//T[50] = T1;
+//----------------------------------------Расчет----------------------------------------------------
 	while (t < time_const)
-	//for (n=0; n < N; n++)
 	{
-		K_permeability(theta, K_perm);			//Вычисление проницаемости
-		filtr_satur(K_perm, theta, theta_new, W_fil, tau, &a_max);
+		K_permeability(psi, K_perm);									//Вычисление проницаемости
+		viscosity(eta, T);												//Вычисление вязкости
+		filtr_satur(K_perm, psi, psi_new, W_fil, tau, &a_max, eta);		//Вычисление скорости фильтрации и отношений насыщенностей + a_max
+		T_cond(q, psi, T);
+		termal(T, Tnew, q, psi, W_fil, psi_new, tau);
 
-		//W_filtration(theta, K_perm, W_fil );	//Вычисление скорости филтрации 
-		//saturation(theta, W_fil,theta_new, tau);		//Вычисление насыщенности на новом слое
-		//analit((n+1)*tau, theta_analytic); 		//Аналитическое решение
+		//W_filtration(psi, K_perm, W_fil );	//Вычисление скорости филтрации 
+		//saturation(psi, W_fil,psi_new, tau);		//Вычисление насыщенности на новом слое
+		//analit((n+1)*tau, psi_analytic); 		//Аналитическое решение
 //-------------------------------Вывод-------------------------------------------------------
-		fs1 << tau;
-		fs1 <<std::endl;
-		sprintf(buf,"./out/output%06d.csv",n);
-		fs2.open(buf, std::fstream::out);
-		fs2 << "x, theta, W_fil" << std::endl;
-		for (m=0;m<M;m++)
+		if (n % 10 == 0)
 		{
-			fs2 << m * h <<","<<(theta_new[m]/(1+theta_new[m])) <<"," << W_fil[m];
-			//fs2 << m * h <<","<<theta_new[main];						//вывод отношения насыщенностей
-			fs2 << std::endl;
+			fs1 << tau1 << ',' << tau2 << ',' << t;
+			fs1 <<std::endl;
+			sprintf(buf,"./out/output%07d.csv",n);
+			fs2.open(buf, std::fstream::out);
+			fs2 << "x, psi, W_fil, eta , T , Q" << std::endl;
+			for (m=0;m<M;m++)
+			{
+				fs2 << m * h <<","<<(psi_new[m]/(1+psi_new[m])) <<"," << W_fil[m] <<"," << eta[m] <<"," << Tnew[m] <<"," << q[m] ;
+				//fs2 << m * h <<","<<psi_new[main];						//вывод отношения насыщенностей
+				fs2 << std::endl;
+			}
+			fs2.close();
 		}
-		fs2.close();
+
 //----------------------------------Конец Вывода-----------------------------------------------
-		switcher=theta;
-		theta=theta_new;
-		theta_new=switcher;
-		tau = h / a_max / 2 / ((ro_s - ro_l) * gravity /eta);
+		switcher = psi;
+		psi = psi_new;
+		psi_new = switcher;
+
+		switcher = T;
+		T = Tnew;
+		Tnew = switcher;
+
 		n++;
 		t+=tau;
-		//printf(" %d , %.8f \n",n, t);
+		tau1 = h / a_max / 2 / (K_abs  * (ro_s - ro_l) * gravity );
+		tau2 = h * h * ro_s * c_s / la / 2;
+		if (tau1 > tau2)
+			tau = tau2;
+		else 
+			tau = tau1;
+		
+		//printf(" %d %.8f \n",n, t);
 	}
 
 	

@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-void analit(const double t, double* theta)
+void analit(const double t, double* psi, const double eta)
 {
 	int m,n;
-	double a, theta_new, theta_old;
+	double a, psi_new, psi_old;
 	a=(ro_s-ro_l)/eta*gravity*K_abs;
 	double p,q;
 	double x;
@@ -21,17 +21,17 @@ void analit(const double t, double* theta)
 	{
 		double xi = m*h / (2 * a * t);
 		if (xi > 1. / 8) {
-			theta[m]=0.0;
+			psi[m]=0.0;
 			continue;
 		}
-		//printf ("%f %f\n",theta0, xi);	
-		if (xi < theta0 / pow(theta0 + 1, 3)) {
-			theta[m]=theta0;
+		//printf ("%f %f\n",psi0, xi);	
+		if (xi < psi0 / pow(psi0 + 1, 3)) {
+			psi[m]=psi0;
 			continue;
 		}
 
-		theta_old=1e6;
-		theta_new=1.5;
+		psi_old=1e6;
+		psi_new=1.5;
 
 		x=m*h;
 		p=-1 / xi;
@@ -51,17 +51,17 @@ void analit(const double t, double* theta)
 		if (z<z3) z=z3;
 		z=2*pow(ro,1.0/3)*z;
 		//n=0;
-		/*while((theta_new-theta_old)*(theta_new-theta_old)>1e-14)
+		/*while((psi_new-psi_old)*(psi_new-psi_old)>1e-14)
 		{
-			theta_old = theta_new;
-			theta_new=(1+theta_old)*(1+theta_old)*(1+theta_old)*m*h/t/2/a;
+			psi_old = psi_new;
+			psi_new=(1+psi_old)*(1+psi_old)*(1+psi_old)*m*h/t/2/a;
 			n++;
-			//theta_new=1;
+			//psi_new=1;
 
 		} */
 		//printf ("%d\n",n);
-		theta[m]=z-1;;
-			//theta[m]=1;
+		psi[m]=z-1;;
+			//psi[m]=1;
 
 	}
 

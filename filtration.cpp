@@ -1,61 +1,66 @@
 #include "const.h"
 #include <math.h>
-void K_permeability(double* theta, double* K_perm) //Проницаемость
+
+double theta_l(const double psi)
+{
+	return ( psi / (1 + psi) );
+
+}
+
+double theta_s(const double psi)
+{
+	return ( 1 / (1 + psi) ); 
+}
+
+void K_permeability(double* psi, double* K_perm) //Проницаемость
 {
 	int m;
 	for (m=0;m<M;m++)
 	{
-		K_perm[m]=(theta[m]*theta[m])/(1+theta[m])/(1+theta[m]);   //Задаю проницаемость как квадрат насыщенности.
+		K_perm[m] = pow( theta_l( psi[m] ), 2);   //Задаю проницаемость как квадрат насыщенности.
 	}															//(На самом деле в тетта лежит отношение насыщеносттей, поэтому такая формула)
 }
 
 
-void W_filtration(double* theta, double* K_perm, double* W_fil ) //Вектор Фильтрации. (На границах задаем что он ноль)
+void viscosity(double * eta, const double* T)
 {
 	int m;
-	for (m=0;m<M;m++)
+	for (m = 1; m < M; m++)
 	{
-		W_fil[m]=K_abs*K_perm[m]/eta*(ro_s-ro_l)*gravity;		//m+1/2
+		//eta[m] = 0.001 * exp( alpha * (Tcrit - T[m]) );
+		eta[m] = 1e-3;
 	}
 }
 
-
-void saturation(double* theta, double* W_fil, double* theta_new, const double tau) // отношение относительных насыщенностей жидкости и скелета
+void filtr_satur(const double *K_perm, const double *psi, double *psi_new, double *W_fil, const double tau, double* a_max, const double* eta)
 {
 	int m;
-	for (m=1;m<M;m++)
-	{
-		theta_new[m]=theta[m]-tau*(W_fil[m]-W_fil[m-1])/h;	
-	}
-}
-
-void filtr_satur(const double *K_perm, const double *theta, double *theta_new, double *W_fil, const double tau, double* a_max)
-{
-	int m;
-	double theta_temporary;
+	double psi_temporary;
 	*a_max = 0;
 	for (m = 1; m < M; m++)
 	{
-		W_fil[m]=K_abs*K_perm[m]/eta*(ro_s-ro_l)*gravity;
-		theta_temporary = theta[m] - tau * (W_fil[m] - W_fil[m-1])/h;
-		if (2*theta_temporary/pow((1+theta_temporary), 3) > *a_max ) 
+		W_fil[m]=K_abs*K_perm[m] / eta[m] * (ro_s - ro_l) * gravity;
+		psi_temporary = psi[m] - tau * (W_fil[m] - W_fil[m-1])/h;
+
+		if (2 * psi_temporary / pow((1+psi_temporary), 3) / eta[m] > *a_max ) //Вычисляем максимальное a для условия Куранта
 		{
-			*a_max = 2*theta_temporary/pow((1+theta_temporary), 3);
+			*a_max = 2 * psi_temporary / pow((1+psi_temporary) , 3) / eta[m];
 		}
 
-		if (theta_temporary >= theta_crit)
+		if (psi_temporary >= psi_crit)
 		{
-			theta_new[m] = theta_temporary;
+			psi_new[m] = psi_temporary;
 			continue;
 		}
-		if (theta_temporary < theta_crit)
+		if (psi_temporary < psi_crit)
 		{
-			theta_new[m] = theta_crit;
-			W_fil[m] = W_fil[m-1] + (theta[m] - theta_new[m]) * h / tau;
+			psi_new[m] = psi_crit;
+			W_fil[m] = W_fil[m-1] + (psi[m] - psi_new[m]) * h / tau;
 		}
-		if (2*theta_new[m]/pow((1+theta_new[m]), 3) > *a_max ) 
+
+		if (2 * psi_new[m] / pow((1+psi_new[m]), 3) / eta[m]  > *a_max ) 	//Вычисляем максимальное a для условия Куранта
 		{
-			*a_max = 2*theta_new[m]/pow((1+theta_new[m]), 3);
+			*a_max = 2 * psi_new[m] / pow((1+psi_new[m]) , 3) / eta[m];
 		}
 	}
 
