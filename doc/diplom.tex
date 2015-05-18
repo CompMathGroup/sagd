@@ -10,6 +10,11 @@
 \begin{document}
 \maketitle
 \newpage
+\section*{Постановка Задачи}
+
+
+
+\newpage
 \section*{Обозначения}
 
 \section*{Уравнения}
@@ -37,7 +42,7 @@
 %\begin{equation}
 %\pd{\theta_l\rho_l e_l + \theta_s\rho_s e_s }{t} + \pd{ \theta_l\rho_l h_l + \theta_s\rho_s h_s - \lambda \pd{T}{z} }{z} = 0
 %\end{equation}
-Считаем, что скелет несжимаемый
+Считаем, что твердая фаза несжимаема
 
 \begin{equation}
 \begin{aligned}
@@ -49,17 +54,17 @@
 
 Тогда из уравнения \eqref{eq:contin_s}, с учетом несжимаемости флюида получаем
 \begin{equation}
-\pd{\theta_s}{t} = - \pd{\theta_s V_s}{z}
+\pd{\theta_s}{t} + \pd{\theta_s V_s}{z} = 0
 \label{fluid}
 \end{equation}
 
-Перейдем к новой переменной $dx$
+Из \eqref{fluid} следует, что $\theta_s dz + \theta_s V_s dt $ является полным дифференицалом. Тогда введем dx:
 \begin{equation}
-dx = \theta_s dz - \theta_s V_s dt
+dx = \theta_s dz + \theta_s V_s dt
 \label{dx_dz}
 \end{equation}
 
-Отсюда, для как-либо функции f 
+Отсюда, для какой-либо функции f 
 \begin{equation}
 \begin{aligned}
 &\left(\pd{f}{t}\right)_z = \pd{(f , z)}{(t , z)}\\
@@ -88,7 +93,7 @@ $$
 \label{z_x}
 \end{equation}
 
-Применим полученные равенства к уравнению непрерывности для скелета \eqref{fluid}. Переходим к новой перемнной.
+Применим полученные равенства к уравнению непрерывности для твердой фазы \eqref{fluid}. Переходим к новой перемнной.
 $$
 \pd{\theta_s}{t} - V_s\theta_s\pd{\theta_s}{x} + \theta_s\pd{V_s\theta_s}{x} =0
 $$
@@ -173,7 +178,7 @@ W= -\frac{k}{\eta_l}\left(\pd{p}{z} + (\rho_l-\rho_s)g \right)
 
 Решаем задачу фильтрации в следующих предположениях:
 \begin{itemize}
-\item Скелет несжимаемый $\rho_s = const $
+\item Твердая фаза несжимаема $\rho_s = const $
 \item Флюид несжимаемый $\rho_l = const $
 \item Проницаемость имеет квадратичную зависимость от насыщенности флюида
 \begin{equation}
@@ -250,7 +255,7 @@ $$
 \psi = \frac{\theta_l}{\theta_s} 
 $$
 
-Считаем, что насыщенность скелета имеет предел, когда он уже не может больше уплотнятся. То есть существует такое $ \psi^* $ - критическое, что $\psi $ не может стать меньше чем $\psi^*$. 
+Считаем, что насыщенность твердой фазы имеет предел, когда он уже не может больше уплотнятся. То есть существует такое $ \psi^* $ - критическое, что $\psi $ не может стать меньше чем $\psi^*$. 
 
 Тогда разностная схема изменится. 
 Сначала вычисляем проницаемость на всей области.
@@ -292,7 +297,7 @@ $$
 где коэффициент вязкости $\eta $ был константой. Теперь введем зависимость коэффициента вязкости 	$ \eta $ от температуры
 
 \begin{equation}
-\eta = e^{ \alpha (T - T_{crit}) }
+\eta = e^{\alpha(T - T_{crit})}
 \label{viscos}
 \end{equation}
 
@@ -302,6 +307,57 @@ $$
 $$
 
 Перепишем уравнение сохранения энергии \eqref{eq:conserv_new}, учитывая, что $ e_l = c_lT,\ e_s = c_sT $ 
+\begin{equation}
+\pd{}{t} \left(\frac{\theta_l \rho_l c_l T + \theta_s \rho_s c_s T}{\theta_s}\right) + \pd{}{x}\left(\rho_l T c_l W - \lambda \theta_s \pd{T}{x}\right) = 0
+\label{conserv}
+\end{equation}
+
+Также заданы начальные условия -  температура и насыщенность на всей области. Задано граничное условие - скорость фильтрации, насыщенность и температура в нижней ячейки.
+
+$$
+\begin{aligned}
+&T(0,x) = T_0(x), \ \ \theta(0, x) = \theta_0(x) \ \ \\
+&W\left(t, \frac12\right)  = W_1(t),\ \ T(t, 0) = T1(t), \ \ \theta(t, 0) = \theta_1(t) \ \ 
+\end{aligned}
+$$ 
+\newpage
+Выпишем разностную схему. На (n+1)-ом шаге по времени 
+\begin{enumerate}
+\item Вычисляем вязкость на всей области : 
+$$
+\eta_m = e^{-\alpha(T_m^n - T_{crit})},\ m = 0, \dots ,M
+$$
+\item Вычисляем относительную проницаемость
+$$
+k_m = (\theta_{lm}^{\ n})^2 , \ m = 0,  \dots ,M
+$$
+\item Вычисляем скорость фильтрации между ячейками 
+$$
+W_{m+\frac12} = -\frac{k_{m+\frac12}}{(\eta_{l})_{m+\frac12}}(\rho_s - \rho_l)g
+$$
+\item Вычисляем потоки тепла между ячейками
+$$
+q_{m+\frac12} = - \lambda (\theta_{s})_m^{n} \frac{T_{m+1}^n - T_m^n}{h} 
+$$
+\item Переходим на новый слой по времени, вычсляем отношение насыщенностей $\psi = \frac {\theta_l}{\theta_s}$
+$$
+\psi_m^{n+1} = \psi_m^n - \tau \frac{W_{m+\frac12} - W_{m-\frac12}}{h}
+$$
+\item Вычисляем температуру на новом слое. 
+\begin{multline}
+\left(\frac{\theta_l \rho_l c_l + \theta_s \rho_s c_s}{\theta_s}\right)_m^{n+1} T_m^{n+1} =  \left(\frac{\theta_l \rho_l c_l + \theta_s \rho_s c_s}{\theta_s} T\right)_m^n \\
+- \tau\frac{q_{m+\frac12} - q_{m-\frac12}}{h} - \tau\frac{\rho_l c_l T_{m+\frac12}^n W_{m+\frac12} - \rho_l c_l T_{m-\frac12} W_{m-\frac12}}{h}
+\end{multline}
+\end{enumerate}
+
+Шаг по времени вычисляем из условий Куранта. 
+$$
+\frac{\tau a_{max}}{h} < 1,\ \ a_{max} = \left|\pd{W}{\psi}\right|_{max}
+$$
+Тогда
+$$
+\tau_1 = \frac{h}{2 a_{max}},\ \  a_{max} = \left|\frac{2 \psi K(\rho_s - \rho_l)g}{(1+\psi)^3 \eta_l}\right|_{max}
+$$
 
 
 \end{document}

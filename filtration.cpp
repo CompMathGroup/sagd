@@ -27,8 +27,8 @@ void viscosity(double * eta, const double* T)
 	int m;
 	for (m = 1; m < M; m++)
 	{
-		//eta[m] = 0.001 * exp( alpha * (Tcrit - T[m]) );
-		eta[m] = 1e-3;
+		eta[m] = 0.001 * exp( alpha * (Tcrit - T[m]) );
+		//eta[m] = 1e-3;
 	}
 }
 
