@@ -77,7 +77,7 @@
 
 Из \eqref{fluid} следует, что $\theta_s dz + \theta_s V_s dt $ является полным дифференицалом. Тогда введем dx:
 \begin{equation}
-dx = \theta_s dz + \theta_s V_s dt
+dx = \theta_s dz - \theta_s V_s dt
 \label{dx_dz}
 \end{equation}
 
@@ -186,7 +186,7 @@ $$
 
 Выпишем закон Дарси
 \begin{equation}
-W= -\frac{k}{\eta_l}\left(\pd{p}{z} + (\rho_l-\rho_s)g \right)
+W= -\frac{K}{\eta}\left(\pd{p}{z} - \rho_l g \right)
 \label{Darsi}
 \end{equation}
 %--------------------------------------------------------------------------------------------------------------
@@ -203,35 +203,42 @@ k=\theta_l^2
 \label{perm}
 \end{equation}
 \end{itemize}
+
+Введем новую переменную равную отношению насыщенностей : 
+$$
+\psi = \frac{\theta_l}{\theta_s} 
+$$
+
 Уравнение непрерывности приобретает вид
 $$
-\pd{}{t}\frac{\theta_l}{\theta_s} + \pd{}{x}W = 0
+\pd{\psi}{t} + \pd{}{x}W = 0
 $$
+
 Закон Дарси:
 $$
-W= -\frac{k}{\eta_l}(\rho_l-\rho_s)g
+W= -\theta_s \frac{K}{\eta}(\rho_l-\rho_s)g
 $$
 
 Выпишем разностную схему
-
-Сначала вычисляем проницаемость на всей области.
+\begin{itemize}
+\item Сначала вычисляем проницаемость на всей области.
 \begin{equation}
 k_i = (\theta_{l,i})^2 , \ i = 0,  \dots ,M-1
 \label{perm_razn}
 \end{equation}
 
-Далее вычисляем скорости фильтрации на границах всех ячеек
+\item Далее вычисляем скорости фильтрации на границах всех ячеек
 \begin{equation}
-W_{i+1/2} = \frac{K k(\theta_i)}{\eta_l}(\rho_s-\rho_l)g \ , \ i = 0,  \dots ,M-1
+W_{i+1/2} = \frac{K k(\theta_i)}{\eta}(\rho_s-\rho_l)g \ , \ i = 0,  \dots ,M-1
 \label{Darsi_razn}
 \end{equation}
 
-Наконец переходим на новый слой по времени, вычисляем отношение насыщеносей в каждой ячейке
+\item Наконец переходим на новый слой по времени, вычисляем отношение насыщеносей в каждой ячейке
 \begin{equation}
 \left(\frac{\theta_l}{\theta_s}\right)_i^{n+1} = \left(\frac{\theta_l}{\theta_s}\right)_i^n - \tau\frac{W_{i+1/2} - W_{i-1/2}}{h} \ , \ i = 1,  \dots ,M-1
 \label{filtr_razn}
 \end{equation}
-
+\end{itemize}
 %--------------------------------------------------------------------------------------------------------------
 \newpage
 \section*{Подзадача 2. Теплопроводность}
@@ -289,7 +296,7 @@ k_i = (\theta_{l,i})^2 , \ i = 0,  \dots ,M-1
 
 Вычисляем отношение насыщенностей в очередной ячейке. 
 \begin{equation}
-W_{i+1/2} = \frac{K k(\theta_{l,i})}{\eta_l}(\rho_s-\rho_l)g
+W_{i+1/2} = \frac{K k(\theta_{l,i})}{\eta}(\rho_s-\rho_l)g
 \label{Darsi_razn2}
 \end{equation}
 Если оно больше критического переходим на следующую ячейку.
@@ -309,7 +316,7 @@ W_{i+1/2} = \frac{K k(\theta_{l,i})}{\eta_l}(\rho_s-\rho_l)g
 
 Ранее закон Дарси имел вид 
 $$
-W= -\frac{k}{\eta_l}(\rho_l-\rho_s)g,
+W= -\theta_s \frac{K}{\eta}(\rho_l-\rho_s)g,
 $$
 где коэффициент вязкости $\eta $ был константой. Теперь введем зависимость коэффициента вязкости 	$ \eta $ от температуры
 
@@ -350,7 +357,7 @@ k_m = (\theta_{lm}^{\ n})^2 , \ m = 0,  \dots ,M
 $$
 \item Вычисляем скорость фильтрации между ячейками 
 $$
-W_{m+\frac12} = -\frac{k_{m+\frac12}}{(\eta_{l})_{m+\frac12}}(\rho_s - \rho_l)g
+W_{m+\frac12} = -\frac{k_{m+\frac12}}{(\eta)_{m+\frac12}}(\rho_s - \rho_l)g
 $$
 \item Вычисляем потоки тепла между ячейками
 $$
@@ -373,7 +380,7 @@ $$
 $$
 Тогда
 $$
-\tau_1 = \frac{h}{2 a_{max}},\ \  a_{max} = \left|\frac{2 \psi K(\rho_s - \rho_l)g}{(1+\psi)^3 \eta_l}\right|_{max}
+\tau_1 = \frac{h}{2 a_{max}},\ \  a_{max} = \left|\frac{2 \psi K(\rho_s - \rho_l)g}{(1+\psi)^3 \eta}\right|_{max}
 $$
 
 
