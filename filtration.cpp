@@ -1,10 +1,23 @@
 #include "const.h"
+#include <math.h>
+
+double theta_l(const double psi)
+{
+	return ( psi / (1 + psi) );
+
+}
+
+double theta_s(const double psi)
+{
+	return ( 1 / (1 + psi) ); 
+}
+
 void K_permeability(double* theta, double* K_perm) //Проницаемость
 {
 	int m;
 	for (m=0;m<M;m++)
 	{
-		K_perm[m]=(theta[m]*theta[m])/(1+theta[m])/(1+theta[m]);   //Задаю проницаемость как квадрат насыщенности.
+		K_perm[m]=pow(theta_l(theta[m]), 3) / pow(theta_s(theta[m]), 2);   //Задаю проницаемость как квадрат насыщенности.
 	}															//(На самом деле в тетта лежит отношение насыщеносттей, поэтому такая формула)
 }
 
@@ -14,7 +27,7 @@ void W_filtration(double* theta, double* K_perm, double* W_fil ) //Вектор 
 	int m;
 	for (m=0;m<M;m++)
 	{
-		W_fil[m]=K_abs*K_perm[m]/eta*(ro_s-ro_l)*gravity;		//m+1/2
+		W_fil[m]=theta_s(theta[m]) * K_abs * K_perm[m] / eta * (ro_s - ro_l) * gravity;		//m+1/2
 	}
 }
 
