@@ -10,7 +10,7 @@ int N=1000;					//Количество шагов по времени
 double T0=300.0;						//Температура среды и верхней стенки
 double T1=400.0;						//Температура нижней стенки		(К)
 double length=10.0;  			//Длина области в метрах		(м)
-double time_const =1e-6;		//Время эксперимента 			(с)
+double time_const =5e-6;		//Время эксперимента 			(с)
 double tau=1.0*time_const/N;	//Величина шага по времени		(с) 
 double h=length/(M);				//Величина шага по расстоянию	(м)
 double eta=1e-3; 				//Коэффициент Вязости			(Па*с)
@@ -20,9 +20,9 @@ double ro_s=1400.0; 			//Плотность скелета				(Кг/м3)
 double c=1.0;					//Теплоемкость					(Дж/К)
 double gravity=9.8;				//Постоянная свободного падения	(м/с2)
 double K_abs=1.0;				//Абсолютная проницаемость
-double theta0=2.0;
+double theta0=4.0;
 //---------------------------------------------------------------------------------------------------
-void analit(const double t, double* theta);
+void analit(const double t, double* theta,const double* theta_new);
 void K_permeability(double* theta, double* K_perm);
 void termal(double* T, double* Tnew, double* q);
 void W_filtration(double* theta, double* K_perm, double* W_fil );
@@ -61,7 +61,7 @@ main()
 		W_filtration(theta, K_perm, W_fil );	//Вычисление скорости филтрации 
 		saturation(theta, W_fil,theta_new);		//Вычисление насыщенности на новом слое
 
-		analit((n+1)*tau, theta_analytic); 		//Аналитическое решение
+		analit((n+1)*tau, theta_analytic, theta_new); 		//Аналитическое решение
 //-------------------------------Вывод-------------------------------------------------------
 		sprintf(buf,"./out/output%06d.csv",n);
 		fs2.open(buf, std::fstream::out);

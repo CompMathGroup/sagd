@@ -17,8 +17,9 @@ void K_permeability(double* theta, double* K_perm) //Проницаемость
 	int m;
 	for (m=0;m<M;m++)
 	{
-		K_perm[m]=pow(theta_l(theta[m]), 3) / pow(theta_s(theta[m]), 2);   //Задаю проницаемость как квадрат насыщенности.
-	}															//(На самом деле в тетта лежит отношение насыщеносттей, поэтому такая формула)
+		//K_perm[m]=pow(theta_l(theta[m]), 3) / pow(theta_s(theta[m]), 2);   
+		K_perm[m] = 4 * pow( theta[m], 3) / pow(1 + theta[m], 2) / (2 + theta[m]) ; 
+	}															
 }
 
 
@@ -27,7 +28,7 @@ void W_filtration(double* theta, double* K_perm, double* W_fil ) //Вектор 
 	int m;
 	for (m=0;m<M;m++)
 	{
-		W_fil[m]=theta_s(theta[m]) * K_abs * K_perm[m] / eta * (ro_s - ro_l) * gravity;		//m+1/2
+		W_fil[m] = K_abs * K_perm[m] / eta * (ro_s - ro_l) * gravity;		//m+1/2
 	}
 }
 

@@ -2,9 +2,49 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-void analit(const double t, double* theta)
+#include <iostream>
+
+static double K(double psi) {
+	return (4*pow(psi,3))/(pow(1 + psi,2)*(2 + psi));
+}
+
+double dKdpsi(double psi) {
+	return (16 * pow(psi, 3) + 24 * psi * psi) / pow(1 + psi, 3) / pow(2 + psi, 2);
+}
+
+void analit(const double t, double* theta, const double* theta_new)
 {
-	int m,n;
+	int m;
+	double a = (ro_s-ro_l)/eta*gravity*K_abs;
+
+	const double psicr = (1 + sqrt(17)) / 2;
+	const double psil = 4;
+
+	double psi = psil;
+
+	for(m=1;m<M;m++)
+	{
+		double xi = m*h / (a * t);
+		if (xi > dKdpsi(psicr)) {
+			theta[m]=0.0;
+			continue;
+		}
+		
+		if (xi < dKdpsi(psil) ) { 
+			theta[m]= psil;
+			continue;
+		}
+
+		while (dKdpsi(psi) < xi && psi > psicr)
+			psi -= 1e-3;
+		theta[m] = psi;
+	}
+
+
+
+
+
+	/*int m,n;
 	double a, theta_new, theta_old;
 	a=(ro_s-ro_l)/eta*gravity*K_abs;
 	double p,q;
@@ -60,10 +100,10 @@ void analit(const double t, double* theta)
 
 		} */
 		//printf ("%d\n",n);
-		theta[m]=z-1;;
+		//theta[m]=z-1;;
 			//theta[m]=1;
 
-	}
+	//}
 
 
 }
