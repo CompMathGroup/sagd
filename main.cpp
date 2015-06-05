@@ -21,9 +21,9 @@ double c=1.0;					//Теплоемкость					(Дж/К)
 double gravity=9.8;				//Постоянная свободного падения	(м/с2)
 double K_abs=1.0;				//Абсолютная проницаемость
 double theta0=0.0;				//Насыщенность на границе
-double theta_crit=0;				//Критическое значение насыщенности (относительной)
+double theta_crit=1./9;				//Критическое значение насыщенности (относительной)
 //---------------------------------------------------------------------------------------------------
-void analit(const double t, double* theta);
+void analit(const double t, double* theta, const double* theta_new);
 void K_permeability(double* theta, double* K_perm);
 void termal(double* T, double* Tnew, double* q);
 void W_filtration(double* theta, double* K_perm, double* W_fil );
@@ -64,14 +64,14 @@ main()
 
 		//W_filtration(theta, K_perm, W_fil );	//Вычисление скорости филтрации 
 		//saturation(theta, W_fil,theta_new);		//Вычисление насыщенности на новом слое
-		//analit((n+1)*tau, theta_analytic); 		//Аналитическое решение
+		analit((n+1)*tau, theta_analytic, theta_new); 		//Аналитическое решение
 //-------------------------------Вывод-------------------------------------------------------
 		sprintf(buf,"./out/output%06d.csv",n);
 		fs2.open(buf, std::fstream::out);
-		fs2 << "x, theta" << std::endl;
+		fs2 << "x, theta, analit" << std::endl;
 		for (m=0;m<M;m++)
 		{
-			fs2 << m * h <<","<<(theta_new[m]/(1+theta_new[m]));
+			fs2 << m * h <<","<<(theta_new[m]/(1+theta_new[m])) <<","<<(theta_analytic[m]/(1+theta_analytic[m]));
 			//fs2 << m * h <<","<<theta_new[main];						//вывод отношения насыщенностей
 			fs2 << std::endl;
 		}
