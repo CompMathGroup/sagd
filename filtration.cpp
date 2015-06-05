@@ -1,10 +1,13 @@
 #include "const.h"
+#include <math.h>
 void K_permeability(double* theta, double* K_perm) //Проницаемость
 {
 	int m;
 	for (m=1;m<M;m++)
 	{
-		K_perm[m]=(theta[m]*theta[m])/(1+theta[m])/(1+theta[m]);   //Задаю проницаемость как квадрат насыщенности.
+		//K_perm[m]=(theta[m]*theta[m])/(1+theta[m])/(1+theta[m]);   //Задаю проницаемость как квадрат насыщенности.
+		K_perm[m] = 4 * pow( theta[m], 3) / pow(1 + theta[m], 2) / (2 + theta[m]) ; 
+
 	}															//(На самом деле в тетта лежит отношение насыщеносттей, поэтому такая формула)
 }
 
