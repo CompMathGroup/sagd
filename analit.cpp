@@ -8,7 +8,7 @@ static double K(double psi) {
 	return (4*pow(psi,3))/(pow(1 + psi,2)*(2 + psi));
 }
 
-double dKdpsi(double psi) {
+double dKdpsi(double psi) {  //Скорость распростронения волны (зависит от  psi)
 	return (16 * pow(psi, 3) + 24 * psi * psi) / pow(1 + psi, 3) / pow(2 + psi, 2);
 }
 
@@ -24,13 +24,13 @@ void analit(const double t, double* theta, const double* theta_new)
 
 	for(m=1;m<M;m++)
 	{
-		double xi = m*h / (a * t);
-		if (xi > dKdpsi(psicr)) {
+		double xi = m*h / (a * t);		//Справа от волны
+		if (xi >= dKdpsi(psicr)) {
 			theta[m]=0.0;
 			continue;
 		}
 		
-		if (xi < dKdpsi(psil) ) { 
+		if (xi <= dKdpsi(psil) ) { //Слева от волны
 			theta[m]= psil;
 			continue;
 		}
