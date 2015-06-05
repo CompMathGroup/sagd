@@ -20,7 +20,7 @@ double ro_s=1400.0; 			//Плотность скелета				(Кг/м3)
 double c=1.0;					//Теплоемкость					(Дж/К)
 double gravity=9.8;				//Постоянная свободного падения	(м/с2)
 double K_abs=1.0;				//Абсолютная проницаемость
-double theta0=4.0;
+double theta0=0.0;
 //---------------------------------------------------------------------------------------------------
 void analit(const double t, double* theta,const double* theta_new);
 void K_permeability(double* theta, double* K_perm);
@@ -51,7 +51,7 @@ main()
 	theta_new[0]=theta0;
 	for (m=1; m<M; m++)
 	{
-		theta[m]=0.0;
+		theta[m]=5.0;
 	}
 //----------------------------------------Расчет----------------------------------------------------
 

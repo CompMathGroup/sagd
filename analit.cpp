@@ -17,8 +17,8 @@ void analit(const double t, double* theta, const double* theta_new)
 	int m;
 	double a = (ro_s-ro_l)/eta*gravity*K_abs;
 
-	const double psicr = (1 + sqrt(17)) / 2;
-	const double psil = 4;
+	const double psicr = 0.570903;
+	const double psil = 0;
 
 	double psi = psil;
 
@@ -26,7 +26,7 @@ void analit(const double t, double* theta, const double* theta_new)
 	{
 		double xi = m*h / (a * t);		//Справа от волны
 		if (xi >= dKdpsi(psicr)) {
-			theta[m]=0.0;
+			theta[m]=5.0;
 			continue;
 		}
 		
@@ -35,8 +35,8 @@ void analit(const double t, double* theta, const double* theta_new)
 			continue;
 		}
 
-		while (dKdpsi(psi) < xi && psi > psicr)
-			psi -= 1e-3;
+		while (dKdpsi(psi) < xi && psi < psicr)
+			psi += 1e-3;
 		theta[m] = psi;
 	}
 
