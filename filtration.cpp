@@ -17,7 +17,8 @@ void K_permeability(double* psi, double* K_perm) //Проницаемость
 	int m;
 	for (m=0;m<M;m++)
 	{
-		K_perm[m] = pow( theta_l( psi[m] ), 2);   //Задаю проницаемость как квадрат насыщенности.
+		K_perm[m] = 4 * pow( psi[m], 3) / pow(1 + psi[m], 2) / (2 + psi[m]) ;
+		//K_perm[m] = pow( theta_l( psi[m] ), 2);   //Задаю проницаемость как квадрат насыщенности.
 	}															//(На самом деле в тетта лежит отношение насыщеносттей, поэтому такая формула)
 }
 
@@ -27,7 +28,7 @@ void viscosity(double * eta, const double* T)
 	int m;
 	for (m = 1; m < M; m++)
 	{
-		eta[m] = 0.001 * exp( alpha * (Tcrit - T[m]) );
+		eta[m] = 0.02 * exp( alpha * (Tcrit - T[m]) );
 		//eta[m] = 1e-3;
 	}
 }
