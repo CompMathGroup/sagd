@@ -23,7 +23,7 @@ double c_s = 2e3;				//Теплоемкость скелета
 double gravity=9.8;				//Постоянная свободного падения	(м/с2)
 double K_abs=1e-11;				//Абсолютная проницаемость
 double psi0=2.0;				//Насыщенность на границе
-double psi_crit=1./9;			//Критическое значение насыщенности (относительной)
+double psi_crit=0.5625;			//Критическое значение насыщенности (относительной)
 double alpha = 0.02;			//Коэффициент в показателе экспоненты для расчета вязкости
 double Tcrit = 400;				//Температура в экспоненте для расчечта вязкоти
 //---------------------------------------------------------------------------------------------------
@@ -54,6 +54,7 @@ main()
 	std::fstream fs2;
 
 	double tau1, tau2;
+	double T_analyt, kappa;
 	double* T=(double*)calloc(M, sizeof(double));				//Температура на старом слое 
 	double* Tnew=(double*)calloc(M, sizeof(double)); 			//Температура на новом слое	
 	double* q=(double*)calloc(M, sizeof(double)); 			//Температура на новом слое	
@@ -71,7 +72,7 @@ main()
 	psi_new[0] = 1;
 	for (m=1; m<M; m++)
 	{
-		psi[m]=1.0; 
+		psi[m]=0.0; 
 		T[m] = T0;
 		//eta[m] = 1000.0;
 	}
@@ -79,6 +80,7 @@ main()
 	tau = 1e-20;
 	n = 0;
 	//T[50] = T1;
+
 //----------------------------------------Расчет----------------------------------------------------
 	while (t < time_const)
 	{
@@ -96,14 +98,16 @@ main()
 		{
 			fs1 << tau1 << ',' << tau2 << ',' << t;
 			fs1 <<std::endl;
-			sprintf(buf,"./out/output%07d.csv",n);
+			sprintf(buf,"./out/1output%07d.csv",n);
 			fs2.open(buf, std::fstream::out);
-			fs2 << "x, psi, W_fil, eta , T , Q, z" << std::endl;
+			fs2 << "x, psi, W_fil, eta , T , Q, z, T_analyt" << std::endl;
 			z = 0;
 			for (m=1;m<M;m++)
 			{
+				kappa = la /(ro_l * c_l * psi_new[m] + ro_s * c_s) /(1 + psi_new[m]);
+				T_analyt = 300 + 200. * erfc( m * h / sqrt(4 * t * kappa));
 				z = z + h *(1 + psi_new[m]);
-				fs2 << m * h <<","<<(psi_new[m]/(1+psi_new[m])) <<"," << W_fil[m] <<"," << eta[m] <<"," << Tnew[m] <<"," << q[m] <<"," << z ;
+				fs2 << m * h <<","<<(psi_new[m]/(1+psi_new[m])) <<"," << W_fil[m] <<"," << eta[m] <<"," << Tnew[m] <<"," << q[m] <<"," << z <<"," << T_analyt ;
 				//fs2 << m * h <<","<<psi_new[main];						//вывод отношения насыщенностей
 				fs2 << std::endl;
 			}
