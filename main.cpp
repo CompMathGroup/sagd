@@ -66,14 +66,14 @@ main()
 	double* K_perm=(double*)calloc(M+1, sizeof(double));			//Проницаемость
 //----------------------------------------Начальные и граничные условия---------------------------
 	W_fil[0]=0;
-	T[0] = T1;
-	Tnew[0] = T1;
-	psi[0] = 1;
-	psi_new[0] = 1;
+	T[0] = T0;
+	Tnew[0] = T0;
+	psi[0] = 0;
+	psi_new[0] = 0;
 	for (m=1; m<M; m++)
 	{
-		psi[m]=1.0; 
-		T[m] = T0;
+		psi[m]=3.0; 
+		T[m] = T1;
 		//eta[m] = 1000.0;
 	}
 	t = 0;
@@ -98,7 +98,7 @@ main()
 		{
 			fs1 << tau1 << ',' << tau2 << ',' << t;
 			fs1 <<std::endl;
-			sprintf(buf,"./out/1output%07d.csv",n);
+			sprintf(buf,"./out/output%07d.csv",n);
 			fs2.open(buf, std::fstream::out);
 			fs2 << "x, psi, W_fil, eta , T , Q, z, T_analyt" << std::endl;
 			z = 0;
